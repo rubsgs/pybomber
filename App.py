@@ -7,6 +7,7 @@ class App:
     def __init__(self):
         self._running = True
         self.screen = None
+        self.padding = [32,32]
         self.size = self.weight, self.height = 800, 800
         self.ball = None
         self.background = pygame.image.load('assets/backgrounds/bg_lava.png');
@@ -15,7 +16,7 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
-        self.ball = Ball(self.screen)
+        self.ball = Ball(self.screen, self.padding)
         self._running = True
 
     def on_event(self, event):
@@ -37,7 +38,7 @@ class App:
         pygame.quit()
 
     def on_execute(self):
-        print(self.on_init())
+        #print(self.on_init())
         if self.on_init() == False:
             self._running = False
 
