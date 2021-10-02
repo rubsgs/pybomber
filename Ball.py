@@ -1,7 +1,7 @@
 import pygame
 class Ball:
     def __init__(self, screen, padding):
-        self.speed = [1, 1]
+        self.speed = [5, 5]
         self.image = pygame.image.load("assets/sprites/intro_ball.gif")
         self.rect = self.image.get_rect()
         self.screen = screen

@@ -11,6 +11,7 @@ class App:
         self.size = self.weight, self.height = 800, 800
         self.ball = None
         self.background = pygame.image.load('assets/backgrounds/bg_lava.png');
+        self.clock = pygame.time.Clock()
 
     def on_init(self):
         pygame.init()
@@ -28,7 +29,8 @@ class App:
         pass
 
     def on_render(self):
-        time.sleep(0.001)
+        #time.sleep(0.001)
+        self.clock.tick(30)
         self.screen.blit(self.background, self.background.get_rect())
         self.ball.render()
         pygame.display.flip()
