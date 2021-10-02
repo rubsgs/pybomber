@@ -1,18 +1,21 @@
 import pygame
+import time
 from Ball import *
 from pygame.locals import *
 
 class App:
     def __init__(self):
         self._running = True
-        self._display_surf = None
+        self.screen = None
         self.size = self.weight, self.height = 800, 800
         self.ball = None
+        self.background = pygame.image.load('assets/backgrounds/bg_lava.png');
 
     def on_init(self):
         pygame.init()
-        self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE)
-        self.ball = Ball(self._display_surf)
+        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
+        self.background = pygame.transform.scale(self.background, self.size)
+        self.ball = Ball(self.screen)
         self._running = True
 
     def on_event(self, event):
@@ -24,7 +27,8 @@ class App:
         pass
 
     def on_render(self):
-        self._display_surf.fill([0, 0, 0])
+        time.sleep(0.001)
+        self.screen.blit(self.background, self.background.get_rect())
         self.ball.render()
         pygame.display.flip()
         pass
