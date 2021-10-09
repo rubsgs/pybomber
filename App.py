@@ -23,6 +23,10 @@ class App:
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
+        if event.type == pygame.KEYDOWN:
+            self.ball.onKeyDown(event.key)
+        if event.type == pygame.KEYUP:
+            self.ball.onKeyUp(event.key)
 
     def on_loop(self):
         self.ball.loop()
