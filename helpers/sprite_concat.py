@@ -36,9 +36,9 @@ for arquivo in lista_arquivos:
   nome_sprite = arquivo_valido.group(1)
   nome_lower = nome_sprite.lower()
   if(nome_lower not in spritesheet_meta):
-    spritesheet_meta[nome_lower] = {'total_imagens':0, 'nome': nome_sprite, 'sprite_rects':[]}
+    spritesheet_meta[nome_lower] = {'animation_length':0, 'name': nome_sprite, 'sprite_rects':[]}
   
-  spritesheet_meta[nome_lower]['total_imagens'] += 1
+  spritesheet_meta[nome_lower]['animation_length'] += 1
 
 spritesheet_altura = 0
 spritesheet_largura = 0
@@ -49,15 +49,15 @@ for sprite_key in spritesheet_meta:
   spritesheet_animacao = spritesheet_animacao = Image.new('RGBA', (0, 0))
   max_altura = 0
   total_largura = 0
-  for i in range(sprite['total_imagens']):
+  for i in range(sprite['animation_length']):
     inicio_x = total_largura
-    imagem = Image.open(f'{origem}\\{sprite["nome"]} ({i+1}).{extensao}')
+    imagem = Image.open(f'{origem}\\{sprite["name"]} ({i+1}).{extensao}')
 
     largura, altura = imagem.size
     max_altura = altura if altura > max_altura else max_altura
     total_largura += largura
     spritesheet_largura = total_largura if total_largura > spritesheet_largura else spritesheet_largura    
-    sprite['sprite_rects'].append({'inicio': [inicio_x, spritesheet_altura], 'rect': [largura, altura]})
+    sprite['sprite_rects'].append({'start': [inicio_x, spritesheet_altura], 'rect': [largura, altura]})
     
     temp = Image.new("RGBA", (total_largura, max_altura))
     temp.paste(spritesheet_animacao, (0,0))
