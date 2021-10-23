@@ -28,9 +28,11 @@ class App:
             return
         if event.type == pygame.KEYDOWN:
             #self.ball.onKeyDown(event.key)
+            self.hero.onKeyDown(event.key)
             return
         if event.type == pygame.KEYUP:
             #self.ball.onKeyUp(event.key)
+            self.hero.onKeyUp(event.key)
             return
         return
 

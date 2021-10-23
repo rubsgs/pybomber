@@ -20,6 +20,7 @@ class Spritesheet:
       self.current_sprite_index = 0
       self.current_animation_length = self.meta[self.current_animation_dict]['animation_length']
       self.set_current_rect()
+      return self.set_current_image()
     else:
       raise Exception(f'{animation_name} not found in SpriteAnimation {self.name}')
 
