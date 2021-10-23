@@ -21,9 +21,6 @@ if(not os.path.isdir(destino)):
   print('É necessário informar um caminho de destino válido')
   exit(1)
 
-#print(os.listdir(origem))
-#print(os.listdir(destino))
-
 lista_arquivos = os.listdir(origem)
 spritesheet_meta = {}
 
