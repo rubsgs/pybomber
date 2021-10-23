@@ -1,6 +1,7 @@
 import pygame
 import time
 from Ball import *
+from core.Hero import *
 from pygame.locals import *
 
 class App:
@@ -17,26 +18,33 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
-        self.ball = Ball(self.screen, self.padding)
+        #self.ball = Ball(self.screen, self.padding)
+        self.hero = Hero(self.screen)
         self._running = True
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
+            return
         if event.type == pygame.KEYDOWN:
-            self.ball.onKeyDown(event.key)
+            #self.ball.onKeyDown(event.key)
+            return
         if event.type == pygame.KEYUP:
-            self.ball.onKeyUp(event.key)
+            #self.ball.onKeyUp(event.key)
+            return
+        return
 
     def on_loop(self):
-        self.ball.loop()
+        #self.ball.loop()
+        self.hero.loop()
         pass
 
     def on_render(self):
         #time.sleep(0.001)
         self.clock.tick(30)
         self.screen.blit(self.background, self.background.get_rect())
-        self.ball.render()
+        #self.ball.render()
+        self.hero.render()
         pygame.display.flip()
         pass
 
