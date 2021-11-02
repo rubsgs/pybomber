@@ -18,7 +18,7 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
-        self.hero = Hero(self.screen)
+        self.hero = Hero(self.screen, padding=self.padding)
         self._running = True
 
     def on_event(self, event):
@@ -41,7 +41,7 @@ class App:
         self.screen.blit(self.background, self.background.get_rect())
         self.hero.render()
         pygame.display.flip()
-        self.clock.tick(25)
+        self.clock.tick(30)
         pass
 
     def on_cleanup(self):
