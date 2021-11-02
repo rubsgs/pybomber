@@ -18,7 +18,6 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
-        #self.ball = Ball(self.screen, self.padding)
         self.hero = Hero(self.screen)
         self._running = True
 
@@ -27,34 +26,28 @@ class App:
             self._running = False
             return
         if event.type == pygame.KEYDOWN:
-            #self.ball.onKeyDown(event.key)
             self.hero.onKeyDown(event.key)
             return
         if event.type == pygame.KEYUP:
-            #self.ball.onKeyUp(event.key)
             self.hero.onKeyUp(event.key)
             return
         return
 
     def on_loop(self):
-        #self.ball.loop()
         self.hero.loop()
         pass
 
     def on_render(self):
-        #time.sleep(0.001)
-        self.clock.tick(30)
         self.screen.blit(self.background, self.background.get_rect())
-        #self.ball.render()
         self.hero.render()
         pygame.display.flip()
+        self.clock.tick(25)
         pass
 
     def on_cleanup(self):
         pygame.quit()
 
     def on_execute(self):
-        #print(self.on_init())
         if self.on_init() == False:
             self._running = False
 
@@ -69,8 +62,3 @@ class App:
 if __name__ == "__main__":
     theApp = App()
     theApp.on_execute()
-    print("OI JI")
-
-
-    print('oi')
-
