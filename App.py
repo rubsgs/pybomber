@@ -8,8 +8,8 @@ class App:
     def __init__(self):
         self._running = True
         self.screen = None
-        self.padding = [32,32]
-        self.size = self.weight, self.height = 800, 800
+        self.padding = [32 , 32]
+        self.size = self.weight, self.height = 672, 672
         self.ball = None
         self.background = pygame.image.load('assets/backgrounds/bg_lava.png');
         self.clock = pygame.time.Clock()
@@ -18,7 +18,7 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
-        self.hero = Hero(self.screen, padding=self.padding)
+        self.hero = Hero(self.screen, padding=self.padding, x=self.padding[0], y=self.padding[1])
         self._running = True
 
     def on_event(self, event):
