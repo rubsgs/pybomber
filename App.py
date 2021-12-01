@@ -4,14 +4,16 @@ from Ball import *
 from core.Hero import *
 from pygame.locals import *
 
+from core.Map import Map
+
 class App:
     def __init__(self):
         self._running = True
         self.screen = None
-        self.padding = [32 , 32]
+        self.padding = [96 , 96]
         self.size = self.weight, self.height = 672, 672
         self.ball = None
-        self.background = pygame.image.load('assets/backgrounds/bg_lava.png');
+        self.background = pygame.image.load('assets/backgrounds/bg_lava.png')
         self.clock = pygame.time.Clock()
 
     def on_init(self):
@@ -19,6 +21,7 @@ class App:
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
         self.background = pygame.transform.scale(self.background, self.size)
         self.hero = Hero(self.screen, padding=self.padding, x=self.padding[0], y=self.padding[1])
+        self.map = Map(self.screen,Map.MAP1)
         self._running = True
 
     def on_event(self, event):
@@ -31,14 +34,14 @@ class App:
         if event.type == pygame.KEYUP:
             self.hero.onKeyUp(event.key)
             return
+            
         return
 
     def on_loop(self):
-        self.hero.loop()
-        pass
+        self.hero.loop(self.map)
 
     def on_render(self):
-        self.screen.blit(self.background, self.background.get_rect())
+        self.map.render()
         self.hero.render()
         pygame.display.flip()
         self.clock.tick(30)
