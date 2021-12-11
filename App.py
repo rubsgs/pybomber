@@ -1,7 +1,7 @@
 import pygame
 import time
 from Ball import *
-from core.Camera import Camera
+from core.Camera import Camera, Direcoes
 from core.Hero import *
 from pygame.locals import *
 
@@ -59,11 +59,13 @@ class App:
         self.hero.loop(self.map)
 
     def check_map_change(self):
+        """ TODO(tulio) - Por esse magica number em uma constante """
         if self.hero.y - self.camera.y < -150 and not self._paused:
             self._paused = True
-            self.camera.is_moving = True
-            self.camera.target_y = self.camera.y + self.camera.h
-            self.camera.velocidade_y = self.camera.CAMERA_SPEED
+            self.camera.emit_camera_event(Direcoes.CIMA)
+        if self.hero.y - self.camera.y + self.camera.height > 150 and not self._paused:
+            self._paused = True
+            self.camera.emit_camera_event(Direcoes.BAIXO)
 
     def on_render(self):
         self.screen.fill((0, 0, 0))
