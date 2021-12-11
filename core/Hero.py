@@ -4,9 +4,8 @@ from core.Map import Map
 from core.Spritesheet import *
 
 
-
 class Hero:
-    def __init__(self, screen, x=0, y=0, size=(64, 64), padding=[0, 0]):
+    def __init__(self, screen, camera, x=0, y=0, size=(64, 64), padding=[0, 0]):
         self.assets_root = 'assets/sprites/hero'
         self.sprite_json_path = f'{self.assets_root}/spritesheet_meta.json'
         self.spritesheet_path = f'{self.assets_root}/spritesheet.png'
@@ -16,6 +15,7 @@ class Hero:
         self.padding = padding
 
         self.screen = screen
+        self.camera = camera
         self.size = size
         self.x = x
         self.y = y
@@ -45,14 +45,15 @@ class Hero:
         self.x += self.horizontal_speed
         self.y += self.vertical_speed
 
-        if self.check_collision(map):
+        if self.check_collision(map) and False:
             self.x = old_x
             self.y = old_y
 
         self.surface = self.transform_blit()
 
     def render(self):
-        self.screen.blit(self.surface, (self.x, self.y))
+        self.screen.blit(
+            self.surface, (self.x, self.y))
 
     def onKeyDown(self, keycode):
         if(keycode == pygame.K_LEFT):
@@ -95,7 +96,7 @@ class Hero:
         return self.movement_keys[0] or self.movement_keys[1] or self.movement_keys[2] or self.movement_keys[3]
 
     def check_collision(self, map: Map):
-        
+
         tile_width = map.data.tilewidth
         tile_height = map.data.tileheight
 

@@ -1,5 +1,6 @@
 import os
 import sys
+from pygame import Surface
 import pytmx
 
 ROOT_PATH = os.path.dirname(sys.modules['__main__'].__file__)
@@ -22,11 +23,15 @@ class Map:
         else:
             raise Exception('Mapa não encontrado')
 
-    def render(self):
+    def render(self,camera):
+        aux_surface = Surface((self.screen.get_width(),self.screen.get_height()))
         for layer in self.data:
             for tile in layer.tiles():
                 x_pixel = tile[0]
                 y_pixel = tile[1]
                 surface = tile[2]
                 img = tile[2]
-                self.screen.blit(img, (x_pixel * surface.get_width(), y_pixel * surface.get_height()))
+                aux_surface.blit(img, (camera.x + x_pixel * surface.get_width(),camera.y + y_pixel * surface.get_height()))
+
+        self.screen.blit(aux_surface, (0,0))
+
