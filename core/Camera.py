@@ -24,9 +24,13 @@ class Camera:
         self.velocidade_x = 0
         self.velocidade_y = 0
         self.is_moving = False
-        self.moving_direction = Direcoes.BAIXO
+        self.moving_direction = None
         self.target_x = self.x
         self.target_y = self.y
+
+    @property
+    def position(self):
+        return (self.x, self.y)
 
     def move(self):
         if not self.is_moving:
@@ -49,14 +53,14 @@ class Camera:
             self.target_y = self.y - self.height
             self.velocidade_y = -self.CAMERA_SPEED
 
-
     def check_target(self):
         if self.is_moving and self.moving_direction == Direcoes.BAIXO:
             if self.y >= self.target_y and self.is_moving:
                 self.is_moving = False
+                self.moving_direction = None
                 self.target_y = self.y
                 self.y = self.target_y
-                print('finishing camera move')
+                print('finishing camera move baixo')
                 finished_moving = pygame.event.Event(
                     pygame.USEREVENT, {'name': 'camera_moved'})
                 pygame.event.post(finished_moving)
@@ -64,9 +68,10 @@ class Camera:
         elif self.is_moving and self.moving_direction == Direcoes.CIMA:
             if self.y <= self.target_y and self.is_moving:
                 self.is_moving = False
+                self.moving_direction = None
                 self.target_y = self.y
                 self.y = self.target_y
-                print('finishing camera move')
+                print('finishing camera move cima')
                 finished_moving = pygame.event.Event(
                     pygame.USEREVENT, {'name': 'camera_moved'})
                 pygame.event.post(finished_moving)

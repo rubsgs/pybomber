@@ -49,28 +49,26 @@ class App:
         if self.camera.is_moving:
             self.camera.move()
             self.hero.horizontal_speed = self.camera.velocidade_x
-            self.hero.vertical_speed = self.camera.velocidade_y
-            self.hero.loop(self.map)
-            return
-
-        if not self._paused:
+            self.hero.vertical_speed = -self.camera.velocidade_y/10
+            print(self.camera.position)
+        else:
             self.check_map_change()
 
-        self.hero.loop(self.map)
+        self.hero.loop(self.map,self.camera)
 
     def check_map_change(self):
         """ TODO(tulio) - Por esse magica number em uma constante """
-        if self.hero.y - self.camera.y < -150 and not self._paused:
+        if self.hero.y - self.camera.y < -150 and not self.camera.is_moving:
             self._paused = True
             self.camera.emit_camera_event(Direcoes.CIMA)
-        if self.hero.y - self.camera.y + self.camera.height > 150 and not self._paused:
+        elif self.hero.y - self.camera.y > self.screen.get_height() + 150 and not self.camera.is_moving:
             self._paused = True
             self.camera.emit_camera_event(Direcoes.BAIXO)
 
     def on_render(self):
         self.screen.fill((0, 0, 0))
         self.map.render(self.camera)
-        self.hero.render()
+        self.hero.render(self.camera)
         pygame.display.flip()
         self.clock.tick(30)
         pass
@@ -96,9 +94,6 @@ class App:
         if(event.name == 'camera_moved'):
             self.hero.vertical_speed = 0
             self.hero.horizontal_speed = 0
-            print((self.hero.x, self.hero.y))
-            self.hero.y -= self.hero.size[1]
-            print('acertou mizeravi')
             return
         else:
             raise ValueError('Invalid user event')

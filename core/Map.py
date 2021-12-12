@@ -31,7 +31,7 @@ class Map:
                 y_pixel = tile[1]
                 surface = tile[2]
                 img = tile[2]
-                aux_surface.blit(img, (camera.x + x_pixel * surface.get_width(),camera.y + y_pixel * surface.get_height()))
+                aux_surface.blit(img, (x_pixel * surface.get_width() - camera.x, y_pixel * surface.get_height() - camera.y))
 
         self.screen.blit(aux_surface, (0,0))
 

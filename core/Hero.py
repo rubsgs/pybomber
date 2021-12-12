@@ -25,6 +25,10 @@ class Hero:
         self.flip_blit = False
         self.transform_blit()
 
+    @property
+    def position(self):
+        return (self.x, self.y)
+
     def transform_blit(self):
         temp = pygame.image.fromstring(
             self.spritesheet.current_image.tobytes(), self.spritesheet.current_rect, 'RGBA')
@@ -36,7 +40,7 @@ class Hero:
         self.spritesheet.set_current_animation(animation_name)
         return self.transform_blit()
 
-    def loop(self, map):
+    def loop(self, map, camera):
         self.spritesheet.loop()
 
         old_x = self.x
@@ -45,15 +49,15 @@ class Hero:
         self.x += self.horizontal_speed
         self.y += self.vertical_speed
 
-        if self.check_collision(map) and False:
+        if not camera.is_moving and self.check_collision(map):
             self.x = old_x
             self.y = old_y
 
         self.surface = self.transform_blit()
 
-    def render(self):
+    def render(self, camera):
         self.screen.blit(
-            self.surface, (self.x, self.y))
+            self.surface, (self.x - camera.x,  self.y - camera.y))
 
     def onKeyDown(self, keycode):
         if(keycode == pygame.K_LEFT):
