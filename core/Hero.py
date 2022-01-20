@@ -46,9 +46,9 @@ class Hero:
     self.x += self.horizontal_speed
     self.y += self.vertical_speed
 
-    if self.check_collision(map):
-      self.x = old_x
-      self.y = old_y
+    #if self.check_collision(map):
+    #  self.x = old_x
+    #  self.y = old_y
 
     self.surface = self.transform_blit()
 

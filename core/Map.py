@@ -7,19 +7,24 @@ MAPS_PATH = ROOT_PATH + '/assets/maps/'
 
 
 class Map:
-
-    MAP1 = 'map1/map1.tmx'
+    ASSETS_ROOT = 'assets/maps'
+    MAP1 = f'{ASSETS_ROOT}/map1/map1.tmx'
 
     def __init__(self, screen, map) -> None:
         self.screen = screen
-        self.data = self.get_map_resouce(map)
+        self.data = self.get_map_resource(map)
 
-    def get_map_resouce(self, map_path):
+    def get_map_resource(self, map_path):
         if os.path.exists(map_path):
+            print('if')
             return pytmx.load_pygame(map_path)
         elif os.path.exists(MAPS_PATH + map_path):
+            print('elif')
             return pytmx.load_pygame(MAPS_PATH + map_path)
         else:
+            print(map_path)
+            print(sys.modules['__main__'].__file__)
+            print(MAPS_PATH + map_path)
             raise Exception('Mapa não encontrado')
 
     def render(self):
