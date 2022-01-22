@@ -55,6 +55,4 @@ class Rock:
 
   #TODO - Render
   def render(self):
-    print(self.x)
-    print(self.y)
     self.screen.blit(self.surface, (self.x, self.y))

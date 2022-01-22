@@ -7,7 +7,7 @@ from core.Spritesheet import *
 
 class Hero:
   #TODO
-  def __init__(self, screen, x=0, y=0, size=(64, 64), padding=[0, 0]):
+  def __init__(self, screen, x=0, y=0, size=(16, 16), padding=[0, 0]):
     self.assets_root = 'assets/sprites/hero'
     self.sprite_json_path = f'{self.assets_root}/spritesheet_meta.json'
     self.spritesheet_path = f'{self.assets_root}/spritesheet.png'
@@ -46,9 +46,9 @@ class Hero:
     self.x += self.horizontal_speed
     self.y += self.vertical_speed
 
-    #if self.check_collision(map):
-    #  self.x = old_x
-    #  self.y = old_y
+    if self.check_collision(map):
+      self.x = old_x
+      self.y = old_y
 
     self.surface = self.transform_blit()
 

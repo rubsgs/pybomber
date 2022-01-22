@@ -5,7 +5,7 @@ from math import floor
 
 class Grid:
   #TODO - Desacoplar Grid de screen
-  def __init__(self, screen, size=(768,768), padding=(96,96), total_columns=21, total_rows=21, total_rocks=10):
+  def __init__(self, screen, size=(672,672), padding=(96,96), total_columns=19, total_rows=19, total_rocks=10):
     self.screen = screen
     self.total_columns = total_columns
     self.total_rows = total_rows
@@ -26,31 +26,17 @@ class Grid:
     return [[-1 for i in range(self.total_rows)] for j in range(self.total_columns)]
 
   def generate_level_matrix(self):
-    #não gerar rocha no [0, 1] e [1, 0] para não deixar o player preso
-    self.generate_fixed_rocks()
     for i in range(self.total_rocks):
       random_column = random.randint(1, self.total_columns -1)
       print(f'random_column is {random_column}')
       random_row = random.randint(1, self.total_rows -1)
       print(f'random_row is {random_row}')
+
       if (random_column == 1 and random_row == 1) or self.element_matrix[random_column][random_row] != -1:
         i -= 1
         continue
       
-      self.element_matrix[random_column][random_row] = Rock.make_random_rock(random.getstate(), self.screen, grid_position=(random_column, random_row), allow_unbreakable=False)
-
-  def generate_fixed_rocks(self):
-    #rochas indestrutiveis são geradas pulando 1 casa para a direita e para baixo
-    iterator_x = 1
-    iterator_y = 1
-    
-    while iterator_x < self.total_columns:
-      while iterator_y < self.total_rows:
-        position_x = self.cell_width * iterator_x
-        position_y = self.cell_height * iterator_y
-        self.element_matrix[iterator_x][iterator_y] = Rock(self.screen, position_x, position_y, (self.cell_width, self.cell_height))
-        iterator_y += 2
-      iterator_x += 2
+      self.element_matrix[random_column][random_row] = Rock.make_random_rock(random.getstate(), self.screen, grid_position=(random_column, random_row), allow_unbreakable=True)
 
   #TODO - Arrumar um jeito não quadratico de renderizar
   def render(self):
