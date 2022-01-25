@@ -21,9 +21,8 @@ class App:
     pygame.init()
     self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
     self.background = pygame.transform.scale(self.background, self.size)
-    self.grid = Grid(self.screen, self.map_size, self.padding, total_rocks=50)
+    self.grid = Grid(self.screen, Map.LAVA1, self.map_size, self.padding, total_rocks=50)
     self.hero = Hero(self.screen, padding=self.padding, x=self.padding[0], y=self.padding[1])
-    self.map = Map(self.screen,Map.LAVA1)
     self._running = True
 
   def on_event(self, event):
@@ -40,12 +39,11 @@ class App:
     return
 
   def on_loop(self):
-    self.hero.loop(self.map)
+    self.hero.loop(self.grid)
 
   def on_render(self):
-    self.map.render()
-    self.hero.render()
     self.grid.render()
+    self.hero.render()
     pygame.display.flip()
     self.clock.tick(30)
     pass

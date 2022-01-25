@@ -1,51 +1,39 @@
 import pygame
 import random
 import math
+from core.Collidable import *
 
-class Rock:
-  WEAK = 0
-  MEDIUM = 1
-  #STRONG = 2
-  UNBREAKABLE = 2
-  
-  #TYPES = [WEAK,MEDIUM,STRONG,UNBREAKABLE]
-  TYPES = [WEAK,MEDIUM,UNBREAKABLE]
+class Rock(Collidable):
+  TYPES = [Collidable.WEAK,Collidable.MEDIUM,Collidable.STRONG,Collidable.UNBREAKABLE]
   
   HP = [0 for i in TYPES]
-  HP[WEAK] = 75
-  HP[MEDIUM] = 100
-  #HP[STRONG] = 500
-  HP[UNBREAKABLE] = math.inf
+  HP[Collidable.WEAK] = 75
+  HP[Collidable.MEDIUM] = 100
+  HP[Collidable.STRONG] = 500
+  HP[Collidable.UNBREAKABLE] = math.inf
 
   SPRITES_PATHS = [0 for i in TYPES]
-  SPRITES_PATHS[WEAK] = 'assets/sprites/environment/rocha_75.png'
-  SPRITES_PATHS[MEDIUM] = 'assets/sprites/environment/rocha_100.png'
-  #SPRITES[STRONG] = 'assets/sprites/environment/rocha_500.png'
-  SPRITES_PATHS[UNBREAKABLE] = 'assets/sprites/environment/rocha_500.png'
+  SPRITES_PATHS[Collidable.WEAK] = 'assets/sprites/environment/rocha_75.png'
+  SPRITES_PATHS[Collidable.MEDIUM] = 'assets/sprites/environment/rocha_100.png'
+  SPRITES_PATHS[Collidable.STRONG] = 'assets/sprites/environment/rocha_500.png'
+  SPRITES_PATHS[Collidable.UNBREAKABLE] = 'assets/sprites/environment/rocha_unb.png'
 
   SPRITES = []
   
   #TODO - Desacoplar Rock de screen
-  def __init__(self, screen=None, x=0, y=0, size=(32,32), type=UNBREAKABLE):
+  def __init__(self, type=Collidable.UNBREAKABLE, grid_x=0, grid_y=0, screen=None, size=(32,32)):
+    Collidable.__init__(self, pygame.transform.scale(Rock.SPRITES[type], size), type, grid_x=grid_x, grid_y=grid_y, size=size)
     self.screen = screen
-    self.x = x
-    self.y = y
-    self.size = size
-    self.type = type
-    print(f'type is {self.type}')
     self.hp = Rock.HP[self.type]
-    self.surface = pygame.transform.scale(Rock.SPRITES[self.type], self.size)
 
   @staticmethod
   def make_random_rock(random_state, screen, size=(32,32), grid_position=(0,0), allow_unbreakable=False):
     random.setstate(random_state)
     random_type = -1
-    while random_type == -1 or (random_type == Rock.UNBREAKABLE and allow_unbreakable):
+    while random_type == -1 or (random_type == Collidable.UNBREAKABLE and not allow_unbreakable):
       random_type = random.randint(0, len(Rock.TYPES) -1)
     
-    position_x = grid_position[0] * size[0]
-    position_y = grid_position[1] * size[1]
-    return Rock(screen, position_x, position_y, size, random_type)
+    return Rock(random_type, grid_position[0], grid_position[1], screen, size)
 
   @staticmethod
   def load_sprites():
