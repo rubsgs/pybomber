@@ -17,8 +17,8 @@ class Grid:
     self.collidables = []
     self.collidables_rects = []
     self.init_matrix()
-    self.cell_width = floor((self.size[0] - self.padding[0])/self.total_rows)
-    self.cell_height = floor((self.size[1] - self.padding[1])/self.total_columns)
+    self.cell_width = floor(self.size[0]/self.total_rows)
+    self.cell_height = floor(self.size[1]/self.total_columns)
     self.seed = random.SystemRandom()
     random.seed(self.seed)
     self.total_rocks = total_rocks
@@ -40,16 +40,16 @@ class Grid:
           self.collidables_rects.append(collidable.get_rect())
         else:
           self.element_matrix[x].append(-1)
-      self.element_matrix.append([])
 
-    self.total_columns = len(self.element_matrix) - 2
-    self.total_rows = len(self.element_matrix[0]) - 2
+    self.total_columns = len(self.element_matrix)
+    self.total_rows = len(self.element_matrix[0])
 
   def generate_level_matrix(self):
     for i in range(self.total_rocks):
-      random_column = random.randint(1, self.total_columns -1)
-      random_row = random.randint(1, self.total_rows -1)
-      if self.element_matrix[random_column][random_row] != -1:
+      #-3 é para: -2 por causa das paredes das bordas, -1 para pegar o último elemnto das listas
+      random_column = random.randint(1, self.total_columns -3)
+      random_row = random.randint(1, self.total_rows -3)
+      if self.element_matrix[random_column][random_row] != -1 or (random_column == 1 and random_row == 1):
         i -= 1
         continue
       
@@ -70,3 +70,6 @@ class Grid:
 
   def check_collision(self, rect):
     return rect.collision_list(self.collidables)
+
+  def get_position_coord(self, position=(1,1)):
+    return (self.cell_width * position[0], self.cell_height * position[1])

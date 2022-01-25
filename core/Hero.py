@@ -7,14 +7,13 @@ from core.Spritesheet import *
 
 class Hero:
   #TODO
-  def __init__(self, screen, x=0, y=0, size=(32, 32), padding=[0, 0]):
+  def __init__(self, screen, x=0, y=0, size=(32, 32)):
     self.assets_root = 'assets/sprites/hero'
     self.sprite_json_path = f'{self.assets_root}/spritesheet_meta.json'
     self.spritesheet_path = f'{self.assets_root}/spritesheet.png'
     self.spritesheet = Spritesheet(
       self.sprite_json_path, self.spritesheet_path, 'Hero')
     self.default_speed_value = 8
-    self.padding = padding
 
     self.screen = screen
     self.size = size

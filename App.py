@@ -22,7 +22,8 @@ class App:
     self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
     self.background = pygame.transform.scale(self.background, self.size)
     self.grid = Grid(self.screen, Map.LAVA1, self.map_size, self.padding, total_rocks=50)
-    self.hero = Hero(self.screen, padding=self.padding, x=self.padding[0], y=self.padding[1])
+    starting_position = self.grid.get_position_coord((1,1))
+    self.hero = Hero(self.screen, x=starting_position[0], y=starting_position[1])
     self._running = True
 
   def on_event(self, event):
