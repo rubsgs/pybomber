@@ -1,5 +1,5 @@
 import pygame
-from pygame.sprite import Sprite
+from pygame.sprite import Sprite, spritecollide
 from core.Grid import *
 
 from core.Spritesheet import *
@@ -8,8 +8,8 @@ from core.Spritesheet import *
 
 class Hero(Sprite):
   ASSETS_ROOT = 'assets/sprites/hero'
-  SPRITESHEET_PATH = f'{self.assets_root}/spritesheet.png'
-  JSON_PATH = f'{self.assets_root}/spritesheet_meta.json'
+  SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
+  JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
   #TODO
   def __init__(self, starting_position=(0,0), size=(32, 32)):
     Sprite.__init__(self)
@@ -20,7 +20,7 @@ class Hero(Sprite):
     self.rect = self.image.get_rect(left=starting_position[0], top=starting_position[0])
 
   def set_defaults(self):
-    self.default_speed_value = 8
+    self.default_speed_value = 16
     self.flip_blit = False
     self.horizontal_speed = 0
     self.vertical_speed = 0
@@ -37,7 +37,7 @@ class Hero(Sprite):
     self.spritesheet.set_current_animation(animation_name)
     return self.transform_image()
 
-  def update(self, grid=None):
+  def update(self, group):
     self.spritesheet.loop()
 
     old_x = self.rect.x
@@ -45,10 +45,9 @@ class Hero(Sprite):
 
     self.rect.x += self.horizontal_speed
     self.rect.y += self.vertical_speed
-
-    # if self.check_collision(grid):
-    #   self.rect.x = old_x
-    #   self.rect.y = old_y
+    if len(spritecollide(self, group, dokill=False)) > 0:
+       self.rect.x = old_x
+       self.rect.y = old_y
 
     self.image = self.transform_image()
 

@@ -1,4 +1,6 @@
+from cmath import inf
 import pygame
+from pygame.sprite import RenderPlain
 import random
 from core.Rock import * 
 from core.Map import *
@@ -7,19 +9,18 @@ from math import floor
 
 class Grid:
   #TODO - Desacoplar Grid de screen
-  def __init__(self, screen, map, size=(672,672), padding=(96,96), total_rocks=10):
-    self.screen = screen
-    self.map = Map(self.screen,map)
+  def __init__(self, map, size=(672,672), padding=(96,96), total_rocks=10):
+    self.map = Map(map)
     self.total_columns = 0
     self.total_rows = 0
     self.size = size
     self.padding = padding
-    self.collidables = []
-    self.collidables_rects = []
+    self.collidables = RenderPlain()
+    self.generated = RenderPlain()
     self.init_matrix()
     self.cell_width = floor(self.size[0]/self.total_rows)
     self.cell_height = floor(self.size[1]/self.total_columns)
-    self.seed = random.SystemRandom()
+    self.seed = random.SystemRandom().randint(-sys.maxsize, sys.maxsize)
     random.seed(self.seed)
     self.total_rocks = total_rocks
     Rock.load_sprites()
@@ -35,9 +36,8 @@ class Grid:
         if self.map.data.get_tile_properties_by_gid(gid):
           self.element_matrix[x].append(Collidable.MAP)
           img = self.map.data.get_tile_image_by_gid(gid)
-          collidable = Collidable(img, Collidable.MAP, grid_x=x, grid_y=y)
-          self.collidables.append(collidable)
-          self.collidables_rects.append(collidable.get_rect())
+          collidable = Collidable(img, Collidable.MAP, (x,y))
+          self.collidables.add(collidable)
         else:
           self.element_matrix[x].append(-1)
 
@@ -49,23 +49,20 @@ class Grid:
       #-3 é para: -2 por causa das paredes das bordas, -1 para pegar o último elemnto das listas
       random_column = random.randint(1, self.total_columns -3)
       random_row = random.randint(1, self.total_rows -3)
-      if self.element_matrix[random_column][random_row] != -1 or (random_column == 1 and random_row == 1):
+      is_bellow_spawn = random_column == 1 and random_row == 2
+      is_right_spawn = random_column == 2 and random_row == 1
+      if self.element_matrix[random_column][random_row] != -1 or (random_column == 1 and random_row == 1) or is_bellow_spawn or is_right_spawn:
         i -= 1
         continue
       
-      rock = Rock.make_random_rock(random.getstate(), self.screen, grid_position=(random_column, random_row), allow_unbreakable=True)
+      rock = Rock.make_random_rock(random.getstate(), grid_position=(random_column, random_row), allow_unbreakable=True)
       self.element_matrix[random_column][random_row] = rock
-      self.collidables.append(rock)
-      self.collidables_rects.append(rock.get_rect())
+      self.generated.add(rock)
+      self.collidables.add(rock)
 
-  #TODO - Arrumar um jeito não quadratico de renderizar
-  def render(self):
-    self.map.render()
-    if(not self.element_matrix): raise Exception('Matriz não iniciada')
-    for column in self.element_matrix:
-      for element in column:
-        if element != -1 and element != Collidable.MAP:
-          element.render()
+  def draw(self, surface):
+    self.map.draw(surface)
+    self.generated.draw(surface)
     return
 
   def check_collision(self, rect):

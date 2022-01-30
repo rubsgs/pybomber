@@ -1,6 +1,8 @@
 import os
 import sys
+from pygame import Surface
 import pytmx
+from pygame.sprite import Sprite
 
 ROOT_PATH = os.path.dirname(sys.modules['__main__'].__file__)
 MAPS_PATH = ROOT_PATH + '/assets/maps/'
@@ -11,8 +13,7 @@ class Map:
   MAP1 = f'{ASSETS_ROOT}/map1/map1.tmx'
   LAVA1 = f'{ASSETS_ROOT}/lava1/lava1.tmx'
 
-  def __init__(self, screen, map) -> None:
-    self.screen = screen
+  def __init__(self, map) -> None:
     self.data = self.get_map_resource(map)
 
   def get_map_resource(self, map_path):
@@ -23,7 +24,8 @@ class Map:
     else:
       raise Exception('Mapa não encontrado')
 
-  def render(self):
+  def draw(self, surface: Surface):
     for layer in self.data:
-      for (x_pixel, y_pixel, surface) in layer.tiles():
-        self.screen.blit(surface, (x_pixel * surface.get_width(), y_pixel * surface.get_height()))
+      for (x_pixel, y_pixel, tile) in layer.tiles():
+        surface.blit(tile, (x_pixel * tile.get_width(), y_pixel * tile.get_height()))
+
