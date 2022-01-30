@@ -1,58 +1,56 @@
 import pygame
+from pygame.sprite import Sprite
 from core.Grid import *
 
 from core.Spritesheet import *
 
 
 
-class Hero:
+class Hero(Sprite):
+  ASSETS_ROOT = 'assets/sprites/hero'
+  SPRITESHEET_PATH = f'{self.assets_root}/spritesheet.png'
+  JSON_PATH = f'{self.assets_root}/spritesheet_meta.json'
   #TODO
-  def __init__(self, screen, x=0, y=0, size=(32, 32)):
-    self.assets_root = 'assets/sprites/hero'
-    self.sprite_json_path = f'{self.assets_root}/spritesheet_meta.json'
-    self.spritesheet_path = f'{self.assets_root}/spritesheet.png'
-    self.spritesheet = Spritesheet(
-      self.sprite_json_path, self.spritesheet_path, 'Hero')
-    self.default_speed_value = 8
-
-    self.screen = screen
+  def __init__(self, starting_position=(0,0), size=(32, 32)):
+    Sprite.__init__(self)
+    self.spritesheet = Spritesheet(Hero.JSON_PATH, Hero.SPRITESHEET_PATH, 'Hero')
     self.size = size
-    self.x = x
-    self.y = y
+    self.set_defaults()
+    self.image = self.transform_image()
+    self.rect = self.image.get_rect(left=starting_position[0], top=starting_position[0])
+
+  def set_defaults(self):
+    self.default_speed_value = 8
+    self.flip_blit = False
     self.horizontal_speed = 0
     self.vertical_speed = 0
     self.movement_keys = [0, 0, 0, 0]
-    self.flip_blit = False
-    self.surface = self.transform_blit()
 
-  def transform_blit(self):
-    temp = pygame.image.fromstring(
-      self.spritesheet.current_image.tobytes(), self.spritesheet.current_rect, 'RGBA')
+  def transform_image(self):
+    current_image = self.spritesheet.current_image.tobytes()
+    temp = pygame.image.fromstring(current_image, self.spritesheet.current_rect, 'RGBA')
     temp = pygame.transform.flip(temp, self.flip_blit, False)
-    surface = pygame.transform.scale(temp, self.size)
-    return surface
+    image = pygame.transform.scale(temp, self.size)
+    return image
 
   def change_animation(self, animation_name):
     self.spritesheet.set_current_animation(animation_name)
-    return self.transform_blit()
+    return self.transform_image()
 
-  def loop(self, grid):
+  def update(self, grid=None):
     self.spritesheet.loop()
 
-    old_x = self.x
-    old_y = self.y
+    old_x = self.rect.x
+    old_y = self.rect.y
 
-    self.x += self.horizontal_speed
-    self.y += self.vertical_speed
+    self.rect.x += self.horizontal_speed
+    self.rect.y += self.vertical_speed
 
-    if self.check_collision(grid):
-      self.x = old_x
-      self.y = old_y
+    # if self.check_collision(grid):
+    #   self.rect.x = old_x
+    #   self.rect.y = old_y
 
-    self.surface = self.transform_blit()
-
-  def render(self):
-      self.screen.blit(self.surface, (self.x, self.y))
+    self.image = self.transform_image()
 
   def onKeyDown(self, keycode):
     if(keycode == pygame.K_LEFT):
@@ -95,7 +93,7 @@ class Hero:
     return self.movement_keys[0] or self.movement_keys[1] or self.movement_keys[2] or self.movement_keys[3]
 
   def get_rect(self):
-    return self.surface.get_rect(left=self.x, top=self.y)
+    return self.image.get_rect(left=self.rect.x, top=self.rect.y)
 
   def check_collision(self, grid: Grid):
     collision_list = self.get_rect().collidelist(grid.collidables_rects)

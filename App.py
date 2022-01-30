@@ -3,6 +3,7 @@ import time
 from Ball import *
 from core.Hero import *
 from core.Grid import *
+from pygame.sprite import RenderUpdates
 from pygame.locals import *
 from core.Map import Map
 
@@ -23,7 +24,7 @@ class App:
     self.background = pygame.transform.scale(self.background, self.size)
     self.grid = Grid(self.screen, Map.LAVA1, self.map_size, self.padding, total_rocks=50)
     starting_position = self.grid.get_position_coord((1,1))
-    self.hero = Hero(self.screen, x=starting_position[0], y=starting_position[1])
+    self.hero = RenderUpdates(Hero(self.screen, starting_position))
     self._running = True
 
   def on_event(self, event):
@@ -31,20 +32,22 @@ class App:
       self._running = False
       return
     if event.type == pygame.KEYDOWN:
-      self.hero.onKeyDown(event.key)
+      for heroIterator in self.hero.sprites():
+        heroIterator.onKeyDown(event.key)
       return
     if event.type == pygame.KEYUP:
-      self.hero.onKeyUp(event.key)
+      for heroIterator in self.hero.sprites():
+        heroIterator.onKeyUp(event.key)
       return
       
     return
 
   def on_loop(self):
-    self.hero.loop(self.grid)
+    self.hero.update()
 
   def on_render(self):
     self.grid.render()
-    self.hero.render()
+    self.hero.draw(self.screen)
     pygame.display.flip()
     self.clock.tick(30)
     pass
