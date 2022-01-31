@@ -32,12 +32,10 @@ class App:
       self._running = False
       return
     if event.type == pygame.KEYDOWN:
-      for heroIterator in self.hero.sprites():
-        heroIterator.onKeyDown(event.key)
+      self.hero.sprites()[0].onKeyDown(event.key)
       return
     if event.type == pygame.KEYUP:
-      for heroIterator in self.hero.sprites():
-        heroIterator.onKeyUp(event.key)
+      self.hero.sprites()[0].onKeyUp(event.key)
       return
       
     return
@@ -47,6 +45,7 @@ class App:
 
   def on_render(self):
     self.grid.draw(self.screen)
+    self.hero.sprites()[0].draw_bombs(self.screen)
     self.hero.draw(self.screen)
     pygame.display.flip()
     self.clock.tick(30)

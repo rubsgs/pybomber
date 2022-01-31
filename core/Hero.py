@@ -1,41 +1,29 @@
 import pygame
-from pygame.sprite import Sprite, spritecollide
+from pygame.sprite import Sprite, spritecollide, RenderUpdates
 from core.Grid import *
-
+from core.AnimatedSprite import *
 from core.Spritesheet import *
+from core.Bomb import *
 
 
 
-class Hero(Sprite):
+class Hero(AnimatedSprite):
   ASSETS_ROOT = 'assets/sprites/hero'
   SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
   JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
   #TODO
   def __init__(self, starting_position=(0,0), size=(32, 32)):
-    Sprite.__init__(self)
-    self.spritesheet = Spritesheet(Hero.JSON_PATH, Hero.SPRITESHEET_PATH, 'Hero')
-    self.size = size
+    AnimatedSprite.__init__(self, Hero.JSON_PATH, Hero.SPRITESHEET_PATH, 'Hero', starting_position, size)
     self.set_defaults()
-    self.image = self.transform_image()
-    self.rect = self.image.get_rect(left=starting_position[0], top=starting_position[0])
 
   def set_defaults(self):
     self.default_speed_value = 16
-    self.flip_blit = False
     self.horizontal_speed = 0
     self.vertical_speed = 0
     self.movement_keys = [0, 0, 0, 0]
-
-  def transform_image(self):
-    current_image = self.spritesheet.current_image.tobytes()
-    temp = pygame.image.fromstring(current_image, self.spritesheet.current_rect, 'RGBA')
-    temp = pygame.transform.flip(temp, self.flip_blit, False)
-    image = pygame.transform.scale(temp, self.size)
-    return image
-
-  def change_animation(self, animation_name):
-    self.spritesheet.set_current_animation(animation_name)
-    return self.transform_image()
+    self.placed_bombs = RenderUpdates()
+    self.max_bombs = 1
+    self.current_bomb_type = Bomb.TYPES['WEAK']
 
   def update(self, group):
     self.spritesheet.loop()
@@ -50,6 +38,7 @@ class Hero(Sprite):
        self.rect.y = old_y
 
     self.image = self.transform_image()
+    self.placed_bombs.update()
 
   def onKeyDown(self, keycode):
     if(keycode == pygame.K_LEFT):
@@ -66,6 +55,10 @@ class Hero(Sprite):
     elif(keycode == pygame.K_DOWN):
       self.vertical_speed = self.default_speed_value
       self.movement_keys[3] = 1
+    elif(keycode == pygame.K_SPACE):
+      print(len(self.placed_bombs))
+      if(len(self.placed_bombs) < self.max_bombs):
+        self.placed_bombs.add(Bomb(self.current_bomb_type, (self.rect.x, self.rect.y), self.size))
     if(self.is_moving()):
       self.change_animation('run')
 
@@ -94,6 +87,10 @@ class Hero(Sprite):
   def get_rect(self):
     return self.image.get_rect(left=self.rect.x, top=self.rect.y)
 
+  #TODO verificar colisão apenas de blocos próximos do player
   def check_collision(self, grid: Grid):
     collision_list = self.get_rect().collidelist(grid.collidables_rects)
     return collision_list >= 0
+
+  def draw_bombs(self, screen):
+    self.placed_bombs.draw(screen)

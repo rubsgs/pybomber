@@ -8,7 +8,6 @@ from core.Collidable import *
 from math import floor
 
 class Grid:
-  #TODO - Desacoplar Grid de screen
   def __init__(self, map, size=(672,672), padding=(96,96), total_rocks=10):
     self.map = Map(map)
     self.total_columns = 0
