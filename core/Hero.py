@@ -20,7 +20,12 @@ class Hero(AnimatedSprite):
     self.default_speed_value = 16
     self.horizontal_speed = 0
     self.vertical_speed = 0
-    self.movement_keys = [0, 0, 0, 0]
+    self.movement_keys = {
+      pygame.K_LEFT: 0,
+      pygame.K_UP: 0,
+      pygame.K_RIGHT: 0,
+      pygame.K_DOWN: 0
+    }
     self.placed_bombs = RenderUpdates()
     self.max_bombs = 1
     self.current_bomb_type = Bomb.TYPES['WEAK']
@@ -40,41 +45,42 @@ class Hero(AnimatedSprite):
     self.image = self.transform_image()
     self.placed_bombs.update()
 
-  def onKeyDown(self, keycode):
-    if(keycode == pygame.K_LEFT):
-      self.horizontal_speed = -self.default_speed_value
-      self.movement_keys[0] = 1
-      self.flip_blit = True
-    elif(keycode == pygame.K_UP):
-      self.vertical_speed = -self.default_speed_value
-      self.movement_keys[1] = 1
-    elif(keycode == pygame.K_RIGHT):
-      self.horizontal_speed = self.default_speed_value
-      self.movement_keys[2] = 1
-      self.flip_blit = False
-    elif(keycode == pygame.K_DOWN):
-      self.vertical_speed = self.default_speed_value
-      self.movement_keys[3] = 1
+  def on_key_down(self, keycode):
+    if keycode in self.movement_keys:
+      self.handle_movement(keycode, 1)
     elif(keycode == pygame.K_SPACE):
-      print(len(self.placed_bombs))
-      if(len(self.placed_bombs) < self.max_bombs):
-        self.placed_bombs.add(Bomb(self.current_bomb_type, (self.rect.x, self.rect.y), self.size))
+      self.handle_drop_bomb()
+
     if(self.is_moving()):
       self.change_animation('run')
 
-  def onKeyUp(self, keycode):
-    if(keycode == pygame.K_LEFT):
+  def handle_movement(self, keycode, moving):
+    self.movement_keys[keycode] = moving
+    if(self.movement_keys[pygame.K_LEFT]):
+      self.horizontal_speed = -self.default_speed_value
+      self.flip_blit = True
+    elif(self.movement_keys[pygame.K_RIGHT]):
+      self.horizontal_speed = self.default_speed_value
+      self.flip_blit = False
+    else:
       self.horizontal_speed = 0
-      self.movement_keys[0] = 0
-    elif(keycode == pygame.K_UP):
+
+    if(self.movement_keys[pygame.K_UP]):
+      self.vertical_speed = -self.default_speed_value
+    elif(self.movement_keys[pygame.K_DOWN]):
+      self.vertical_speed = self.default_speed_value
+    else:
       self.vertical_speed = 0
-      self.movement_keys[1] = 0
-    elif(keycode == pygame.K_RIGHT):
-      self.horizontal_speed = 0
-      self.movement_keys[2] = 0
-    elif(keycode == pygame.K_DOWN):
-      self.vertical_speed = 0
-      self.movement_keys[3] = 0
+    return
+
+  def handle_drop_bomb(self):
+    if(len(self.placed_bombs) < self.max_bombs):
+      self.placed_bombs.add(Bomb(self.current_bomb_type, (self.rect.x, self.rect.y), self.size))
+    return
+
+  def on_key_up(self, keycode):
+    if keycode in self.movement_keys:
+      self.handle_movement(keycode, 0)
     elif(keycode == pygame.K_ESCAPE):
       pygame.quit()
 
@@ -82,7 +88,7 @@ class Hero(AnimatedSprite):
       self.change_animation('idle')
 
   def is_moving(self):
-    return self.movement_keys[0] or self.movement_keys[1] or self.movement_keys[2] or self.movement_keys[3]
+    return any([True for key, value in self.movement_keys.items() if value == 1])
 
   def get_rect(self):
     return self.image.get_rect(left=self.rect.x, top=self.rect.y)

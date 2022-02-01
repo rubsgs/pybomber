@@ -32,10 +32,10 @@ class App:
       self._running = False
       return
     if event.type == pygame.KEYDOWN:
-      self.hero.sprites()[0].onKeyDown(event.key)
+      self.hero.sprites()[0].on_key_down(event.key)
       return
     if event.type == pygame.KEYUP:
-      self.hero.sprites()[0].onKeyUp(event.key)
+      self.hero.sprites()[0].on_key_up(event.key)
       return
       
     return
