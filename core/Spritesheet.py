@@ -1,13 +1,16 @@
 import json
 from PIL import Image
-from pygame.event import post, Event
+import pygame.image
 
 class Spritesheet:
+  meta_cache = {}
+  image_cache = {}
+
   def __init__(self, json_path, spritesheet_path, name='none', default_animation='idle'):
     with open(json_path, 'r') as f:
       self.meta = json.load(f)
       
-    self.spritesheet = Image.open(spritesheet_path)
+    self.spritesheet = pygame.image.load(spritesheet_path)
     self.set_current_animation(default_animation)
     self.name = name
     self.current_image = self.set_current_image()
@@ -38,7 +41,8 @@ class Spritesheet:
 
   def set_current_image(self):
     self.set_current_rect(self.current_sprite_index)
-    self.current_image = self.spritesheet.crop(self.get_current_rect_crop())
+    rect_start = self.get_current_rect_start()
+    self.current_image = self.spritesheet.blit(self.spritesheet, (0,0), (rect_start[0], rect_start[1], self.current_rect[0], self.current_rect[1]))
     return self.current_image
 
   

@@ -34,3 +34,7 @@ class AnimatedSprite(Sprite):
   @abstractmethod
   def update(self):
     pass
+
+  @abstractmethod
+  def preload_assets():
+    pass
