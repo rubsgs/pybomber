@@ -1,6 +1,6 @@
 import pygame
-from pygame.sprite import Sprite, spritecollide, RenderUpdates
-from core.Events import TICK_CLOCK, SPRITESHEET_ANIMATION_OVER
+from pygame.sprite import Sprite, spritecollide, RenderPlain
+from core.Events import TICK_CLOCK
 from core.Grid import *
 from core.AnimatedSprite import *
 from core.Spritesheet import *
@@ -11,12 +11,11 @@ from core.Bomb import *
 class Hero(AnimatedSprite):
   HANDLED_EVENTS = [
     TICK_CLOCK,
-    SPRITESHEET_ANIMATION_OVER,
     pygame.KEYDOWN,
     pygame.KEYUP
   ]
 
-  ASSETS_ROOT = 'assets/sprites/hero'
+  ASSETS_ROOT = f'{SPRITES_ROOT}/hero'
   SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
   JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
   #TODO
@@ -34,9 +33,9 @@ class Hero(AnimatedSprite):
       pygame.K_RIGHT: 0,
       pygame.K_DOWN: 0
     }
-    self.placed_bombs = RenderUpdates()
+    self.placed_bombs = RenderPlain()
     self.max_bombs = 1
-    self.current_bomb_type = Bomb.TYPES['WEAK']
+    self.current_bomb_type = Bomb.TYPES['STRONG']
 
   def update(self, group):
     self.remove_exploded_bombs()
@@ -103,7 +102,7 @@ class Hero(AnimatedSprite):
     return self.image.get_rect(left=self.rect.x, top=self.rect.y)
 
   #TODO verificar colisão apenas de blocos próximos do player
-  def check_collision(self, grid: Grid):
+  def check_collision(self, grid):
     collision_list = self.get_rect().collidelist(grid.collidables_rects)
     return collision_list >= 0
 

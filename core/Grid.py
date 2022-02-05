@@ -1,13 +1,20 @@
 from cmath import inf
+from turtle import position
 import pygame
-from pygame.sprite import RenderPlain
+from pygame.sprite import RenderPlain, RenderUpdates
 import random
+from core.Explosion import Explosion
 from core.Rock import * 
 from core.Map import *
 from core.Collidable import *
+from core.Hero import *
+from core.Events import EXPLODE_BOMB, TICK_CLOCK
 from math import floor
 
 class Grid:
+  HANDLED_EVENTS = [
+    EXPLODE_BOMB
+  ]
   def __init__(self, map, size=(672,672), padding=(96,96), total_rocks=10):
     self.map = Map(map)
     self.total_columns = 0
@@ -25,6 +32,9 @@ class Grid:
     Rock.load_sprites()
     print(f'Generated seed is {self.seed}')
     self.generate_level_matrix()
+    starting_position = self.get_coord_from_position((1,1))
+    self.hero = RenderUpdates(Hero(starting_position))
+    self.explosions = RenderUpdates()
 
 
   def init_matrix(self):
@@ -64,8 +74,34 @@ class Grid:
     self.generated.draw(surface)
     return
 
-  def check_collision(self, rect):
-    return rect.collision_list(self.collidables)
-
-  def get_position_coord(self, position=(1,1)):
+  def get_coord_from_position(self, position=(1,1)):
     return (self.cell_width * position[0], self.cell_height * position[1])
+
+  def get_position_from_coord(self, coord=(0,0)):
+    return (round(coord[0]/self.cell_width), round(coord[1]/self.cell_height))
+
+  def handle_event(self, event):
+    if event.type == EXPLODE_BOMB:
+      self.handle_explode_bomb(event)
+
+    if event.type in Hero.HANDLED_EVENTS:
+      self.hero.sprites()[0].handle_event(event)
+    return
+
+  def on_loop(self):
+    for explosion in self.explosions.sprites():
+      if(explosion.status == Explosion.STATUS['EXPLODED']):
+        self.explosions.remove(explosion)
+
+    self.hero.update(self.collidables)
+    self.explosions.update()
+
+  def on_render(self, screen):
+    self.draw(screen)
+    self.explosions.draw(screen)
+    self.hero.sprites()[0].draw_bombs(screen)
+    self.hero.draw(screen)
+    return
+
+  def handle_explode_bomb(self, event):
+    self.explosions.add(Explosion.make_explosions_from_event(event, self))

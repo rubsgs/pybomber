@@ -3,6 +3,7 @@ from pygame import image as pgimage, transform
 from pygame.sprite import Sprite
 from core.Spritesheet import *
 
+SPRITES_ROOT = 'assets/sprites'
 class AnimatedSprite(Sprite):
   def __init__(self, json_path, spritesheet_path, name, starting_position=(0,0), size=(32,32), default_animation='idle'):
     Sprite.__init__(self)

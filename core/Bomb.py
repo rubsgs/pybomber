@@ -1,8 +1,9 @@
 from core.AnimatedSprite import *
-from core.Events import TICK_CLOCK
+from core.Events import TICK_CLOCK, EXPLODE_BOMB
 from pygame.time import set_timer
+from pygame import event
 class Bomb(AnimatedSprite):
-  ASSETS_ROOT = 'assets/sprites/bomb'
+  ASSETS_ROOT = f'{SPRITES_ROOT}/bomb'
   TYPES = {
     'WEAK': 0,
     'MEDIUM': 1,
@@ -40,17 +41,16 @@ class Bomb(AnimatedSprite):
   }
 
   STATUS = {
-    'PLACED': 1,
-    'EXPLODING': 2,
-    'EXPLODED': 3
+    'PLACED': 0,
+    'EXPLODED': 1
   }
 
-  def __init__(self, type=TYPES['WEAK'], starting_position=(0,0), size=(32,32)):
-    AnimatedSprite.__init__(self, Bomb.JSON_PATH[type], Bomb.SPRITESHEET_PATH[type], 'Bomb', starting_position, size, default_animation='bomb')
-    self.type = type
-    self.damage = Bomb.DAMAGES[self.type]
-    self.range = Bomb.RANGES[self.type]
-    self.time = Bomb.TIME[self.type]
+  def __init__(self, bomb_type=TYPES['WEAK'], starting_position=(0,0), size=(32,32)):
+    AnimatedSprite.__init__(self, Bomb.JSON_PATH[bomb_type], Bomb.SPRITESHEET_PATH[bomb_type], 'Bomb', starting_position, size, default_animation='bomb')
+    self.bomb_type = bomb_type
+    self.damage = Bomb.DAMAGES[self.bomb_type]
+    self.range = Bomb.RANGES[self.bomb_type]
+    self.time = Bomb.TIME[self.bomb_type]
     self.status = Bomb.STATUS['PLACED']
     set_timer(TICK_CLOCK, 1000, self.time)
 
@@ -60,12 +60,9 @@ class Bomb(AnimatedSprite):
       self.start_explosion()
   
   def start_explosion(self):
-    if(self.status == Bomb.STATUS['EXPLODING']): return
-    self.status = Bomb.STATUS['EXPLODING']
-    self.change_animation('explosion')
+    self.status = Bomb.STATUS['EXPLODED']
+    event.post(event.Event(EXPLODE_BOMB, self.__dict__))
     
   def update(self):
-    if(self.spritesheet.current_animation_dict != 'bomb'):
-      self.spritesheet.loop()
-      self.status = Bomb.STATUS['EXPLODED'] if self.spritesheet.animation_over else self.status
+    self.status = Bomb.STATUS['EXPLODED'] if self.spritesheet.animation_over else self.status
     self.image = self.transform_image()

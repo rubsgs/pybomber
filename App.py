@@ -1,7 +1,6 @@
 import pygame
 import time
 from Ball import *
-from core.Hero import *
 from core.Grid import *
 from pygame.sprite import RenderUpdates
 from pygame.locals import *
@@ -23,30 +22,25 @@ class App:
     self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE)
     self.background = pygame.transform.scale(self.background, self.size)
     self.grid = Grid(Map.LAVA1, self.map_size, self.padding, total_rocks=50)
-    starting_position = self.grid.get_position_coord((1,1))
-    self.hero = RenderUpdates(Hero(starting_position))
+    
+    
     self._running = True
 
   def on_event(self, event):
     if event.type == pygame.QUIT:
       self._running = False
       return
-
-    if event.type in Hero.HANDLED_EVENTS:
-      self.hero.sprites()[0].handle_event(event)
-      
+    self.grid.handle_event(event)      
     return
 
   def on_loop(self):
-    self.hero.update(self.grid.collidables)
+    self.grid.on_loop()
 
   def on_render(self):
-    self.grid.draw(self.screen)
-    self.hero.sprites()[0].draw_bombs(self.screen)
-    self.hero.draw(self.screen)
+    self.grid.on_render(self.screen)
     pygame.display.flip()
     self.clock.tick(30)
-    pass
+    return
 
   def on_cleanup(self):
     pygame.quit()

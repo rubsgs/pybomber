@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 import random
 import math
 from core.Collidable import *
+from core.AnimatedSprite import SPRITES_ROOT
 
 class Rock(Collidable):
   TYPES = [Collidable.WEAK,Collidable.MEDIUM,Collidable.STRONG,Collidable.UNBREAKABLE]
@@ -14,10 +15,10 @@ class Rock(Collidable):
   HP[Collidable.UNBREAKABLE] = math.inf
 
   SPRITES_PATHS = [0 for i in TYPES]
-  SPRITES_PATHS[Collidable.WEAK] = 'assets/sprites/environment/rocha_75.png'
-  SPRITES_PATHS[Collidable.MEDIUM] = 'assets/sprites/environment/rocha_100.png'
-  SPRITES_PATHS[Collidable.STRONG] = 'assets/sprites/environment/rocha_500.png'
-  SPRITES_PATHS[Collidable.UNBREAKABLE] = 'assets/sprites/environment/rocha_unb.png'
+  SPRITES_PATHS[Collidable.WEAK] = f'{SPRITES_ROOT}/environment/rocha_75.png'
+  SPRITES_PATHS[Collidable.MEDIUM] = f'{SPRITES_ROOT}/environment/rocha_100.png'
+  SPRITES_PATHS[Collidable.STRONG] = f'{SPRITES_ROOT}/environment/rocha_500.png'
+  SPRITES_PATHS[Collidable.UNBREAKABLE] = f'{SPRITES_ROOT}/environment/rocha_unb.png'
 
   SPRITES = []
   

@@ -1,6 +1,5 @@
 import json
 from PIL import Image
-from core.Events import SPRITESHEET_ANIMATION_OVER
 from pygame.event import post, Event
 
 class Spritesheet:
