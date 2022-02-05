@@ -85,7 +85,7 @@ class Grid:
       self.handle_explode_bomb(event)
 
     if event.type in Hero.HANDLED_EVENTS:
-      self.hero.sprites()[0].handle_event(event)
+      self.hero.sprites()[0].handle_event(event, self)
     return
 
   def on_loop(self):

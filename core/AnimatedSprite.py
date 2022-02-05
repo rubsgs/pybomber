@@ -26,6 +26,11 @@ class AnimatedSprite(Sprite):
     self.spritesheet.set_current_animation(animation_name)
     return self.transform_image()
 
+  def get_center(self):
+    center_x = round(self.rect.x + (self.size[0]/2))
+    center_y = round(self.rect.y + (self.size[1]/2))
+    return (center_x, center_y)
+
   @abstractmethod
   def update(self):
     pass

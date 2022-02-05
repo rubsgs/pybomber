@@ -53,11 +53,11 @@ class Hero(AnimatedSprite):
     self.image = self.transform_image()
     self.placed_bombs.update()
 
-  def on_key_down(self, keycode):
+  def on_key_down(self, keycode, grid):
     if keycode in self.movement_keys:
       self.handle_movement(keycode, 1)
     elif(keycode == pygame.K_SPACE):
-      self.handle_drop_bomb()
+      self.handle_drop_bomb(grid)
 
     if(self.is_moving()):
       self.change_animation('run')
@@ -81,16 +81,17 @@ class Hero(AnimatedSprite):
       self.vertical_speed = 0
     return
 
-  def handle_drop_bomb(self):
+  def handle_drop_bomb(self, grid):
     if(len(self.placed_bombs) < self.max_bombs):
-      self.placed_bombs.add(Bomb(self.current_bomb_type, (self.rect.x, self.rect.y), self.size))
+      #bomb_position e bomb_coord serve para não spawnar bombas no meio de um tile
+      bomb_position = grid.get_position_from_coord((self.rect.x, self.rect.y))
+      bomb_coord = grid.get_coord_from_position(bomb_position)
+      self.placed_bombs.add(Bomb(self.current_bomb_type, bomb_coord, self.size))
     return
 
-  def on_key_up(self, keycode):
+  def on_key_up(self, keycode, grid):
     if keycode in self.movement_keys:
       self.handle_movement(keycode, 0)
-    elif(keycode == pygame.K_ESCAPE):
-      pygame.quit()
 
     if(not self.is_moving()):
       self.change_animation('idle')
@@ -113,12 +114,12 @@ class Hero(AnimatedSprite):
     for bomb in self.placed_bombs:
       bomb.tick()
 
-  def handle_event(self, event):
+  def handle_event(self, event, grid):
     if event.type == pygame.KEYDOWN:
-      self.on_key_down(event.key)
+      self.on_key_down(event.key, grid)
       return
     if event.type == pygame.KEYUP:
-      self.on_key_up(event.key)
+      self.on_key_up(event.key, grid)
       return
     if event.type == TICK_CLOCK and len(self.placed_bombs.sprites()) > 0:
       self.tick_bombs()
