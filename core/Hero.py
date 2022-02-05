@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite, spritecollide, RenderUpdates
+from core.Events import TICK_CLOCK, SPRITESHEET_ANIMATION_OVER
 from core.Grid import *
 from core.AnimatedSprite import *
 from core.Spritesheet import *
@@ -8,6 +9,13 @@ from core.Bomb import *
 
 
 class Hero(AnimatedSprite):
+  HANDLED_EVENTS = [
+    TICK_CLOCK,
+    SPRITESHEET_ANIMATION_OVER,
+    pygame.KEYDOWN,
+    pygame.KEYUP
+  ]
+
   ASSETS_ROOT = 'assets/sprites/hero'
   SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
   JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
@@ -31,6 +39,7 @@ class Hero(AnimatedSprite):
     self.current_bomb_type = Bomb.TYPES['WEAK']
 
   def update(self, group):
+    self.remove_exploded_bombs()
     self.spritesheet.loop()
 
     old_x = self.rect.x
@@ -100,3 +109,22 @@ class Hero(AnimatedSprite):
 
   def draw_bombs(self, screen):
     self.placed_bombs.draw(screen)
+
+  def tick_bombs(self):
+    for bomb in self.placed_bombs:
+      bomb.tick()
+
+  def handle_event(self, event):
+    if event.type == pygame.KEYDOWN:
+      self.on_key_down(event.key)
+      return
+    if event.type == pygame.KEYUP:
+      self.on_key_up(event.key)
+      return
+    if event.type == TICK_CLOCK and len(self.placed_bombs.sprites()) > 0:
+      self.tick_bombs()
+
+  def remove_exploded_bombs(self):
+    for bomb in self.placed_bombs:
+      if(bomb.status == Bomb.STATUS['EXPLODED']):
+        self.placed_bombs.remove(bomb)

@@ -1,0 +1,6 @@
+import pygame
+
+
+from pygame import USEREVENT
+TICK_CLOCK = USEREVENT + 0
+SPRITESHEET_ANIMATION_OVER = USEREVENT + 1

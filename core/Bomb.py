@@ -1,4 +1,6 @@
 from core.AnimatedSprite import *
+from core.Events import TICK_CLOCK
+from pygame.time import set_timer
 class Bomb(AnimatedSprite):
   ASSETS_ROOT = 'assets/sprites/bomb'
   TYPES = {
@@ -14,9 +16,9 @@ class Bomb(AnimatedSprite):
   }
 
   RANGES = {
-    TYPES['WEAK']: 2,
-    TYPES['MEDIUM']: 4,
-    TYPES['STRONG']: 8
+    TYPES['WEAK']: 1,
+    TYPES['MEDIUM']: 2,
+    TYPES['STRONG']: 4
   }
 
   SPRITESHEET_PATH = {
@@ -31,10 +33,16 @@ class Bomb(AnimatedSprite):
     TYPES['STRONG']: f'{ASSETS_ROOT}/spritesheet_meta.json'
   }
 
-  TIMER = {
-    TYPES['WEAK']: 5,
-    TYPES['MEDIUM']: 5,
-    TYPES['STRONG']: 5
+  TIME = {
+    TYPES['WEAK']: 3,
+    TYPES['MEDIUM']: 3,
+    TYPES['STRONG']: 3
+  }
+
+  STATUS = {
+    'PLACED': 1,
+    'EXPLODING': 2,
+    'EXPLODED': 3
   }
 
   def __init__(self, type=TYPES['WEAK'], starting_position=(0,0), size=(32,32)):
@@ -42,4 +50,22 @@ class Bomb(AnimatedSprite):
     self.type = type
     self.damage = Bomb.DAMAGES[self.type]
     self.range = Bomb.RANGES[self.type]
-    self.timer = Bomb.TIMER[self.type]
+    self.time = Bomb.TIME[self.type]
+    self.status = Bomb.STATUS['PLACED']
+    set_timer(TICK_CLOCK, 1000, self.time)
+
+  def tick(self):
+    self.time -= 1
+    if self.time <= 0:
+      self.start_explosion()
+  
+  def start_explosion(self):
+    if(self.status == Bomb.STATUS['EXPLODING']): return
+    self.status = Bomb.STATUS['EXPLODING']
+    self.change_animation('explosion')
+    
+  def update(self):
+    if(self.spritesheet.current_animation_dict != 'bomb'):
+      self.spritesheet.loop()
+      self.status = Bomb.STATUS['EXPLODED'] if self.spritesheet.animation_over else self.status
+    self.image = self.transform_image()

@@ -31,12 +31,9 @@ class App:
     if event.type == pygame.QUIT:
       self._running = False
       return
-    if event.type == pygame.KEYDOWN:
-      self.hero.sprites()[0].on_key_down(event.key)
-      return
-    if event.type == pygame.KEYUP:
-      self.hero.sprites()[0].on_key_up(event.key)
-      return
+
+    if event.type in Hero.HANDLED_EVENTS:
+      self.hero.sprites()[0].handle_event(event)
       
     return
 

@@ -1,5 +1,7 @@
 import json
 from PIL import Image
+from core.Events import SPRITESHEET_ANIMATION_OVER
+from pygame.event import post, Event
 
 class Spritesheet:
   def __init__(self, json_path, spritesheet_path, name='none', default_animation='idle'):
@@ -10,6 +12,7 @@ class Spritesheet:
     self.set_current_animation(default_animation)
     self.name = name
     self.current_image = self.set_current_image()
+    self.animation_over = False
 
   def set_current_rect(self, sprite_index = 0):
     self.current_rect = self.meta[self.current_animation_dict]['sprite_rects'][sprite_index]['rect']
@@ -41,5 +44,7 @@ class Spritesheet:
 
   
   def loop(self):
-    self.current_sprite_index = (self.current_sprite_index + 1) % self.current_animation_length
+    next_sprite = self.current_sprite_index + 1
+    self.current_sprite_index = next_sprite % self.current_animation_length
+    self.animation_over = True if next_sprite == self.current_animation_length else False
     return self.set_current_image()
