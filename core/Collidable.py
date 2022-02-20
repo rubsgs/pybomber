@@ -19,3 +19,11 @@ class Collidable(Sprite):
     y = self.size[1] * grid_position[1]
     self.rect = surface.get_rect(left=x, top=y)
     self.image = surface
+
+  def handle_damage(self, damage):
+    if self.type == Collidable.UNBREAKABLE or self.type == Collidable.MAP: return False
+    self.hp -= damage
+    if self.hp <= 0:
+      self.kill()
+      return True
+    return False
