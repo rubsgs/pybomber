@@ -1,15 +1,16 @@
 import json
 from PIL import Image
+from pygame.event import post, Event
 
 class Spritesheet:
+  cache_meta = {}
+  cache_image = {}
   def __init__(self, json_path, spritesheet_path, name='none', default_animation='idle'):
-    with open(json_path, 'r') as f:
-      self.meta = json.load(f)
-      
-    self.spritesheet = Image.open(spritesheet_path)
+    self.meta, self.spritesheet = Spritesheet.load_or_cache_sprite(name, json_path, spritesheet_path)
     self.set_current_animation(default_animation)
     self.name = name
     self.current_image = self.set_current_image()
+    self.animation_over = False
 
   def set_current_rect(self, sprite_index = 0):
     self.current_rect = self.meta[self.current_animation_dict]['sprite_rects'][sprite_index]['rect']
@@ -41,5 +42,25 @@ class Spritesheet:
 
   
   def loop(self):
-    self.current_sprite_index = (self.current_sprite_index + 1) % self.current_animation_length
+    next_sprite = self.current_sprite_index + 1
+    self.current_sprite_index = next_sprite % self.current_animation_length
+    self.animation_over = True if next_sprite == self.current_animation_length else False
     return self.set_current_image()
+  
+  @staticmethod
+  def load_or_cache_sprite(name, json_path, spritesheet_path):
+    if name == 'none': return
+
+    returned_json = None
+    returned_image = None
+    if name not in Spritesheet.cache_meta:
+      with open(json_path, 'r') as f:
+       Spritesheet.cache_meta[name] = json.load(f)
+
+    if name not in Spritesheet.cache_image:
+      Spritesheet.cache_image[name] = Image.open(spritesheet_path)
+
+    returned_json = Spritesheet.cache_meta[name]
+    returned_image = Spritesheet.cache_image[name]
+
+    return returned_json, returned_image

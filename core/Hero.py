@@ -1,102 +1,130 @@
 import pygame
+from pygame.sprite import Sprite, spritecollide, RenderPlain
+from core.Events import TICK_CLOCK
 from core.Grid import *
-
+from core.AnimatedSprite import *
 from core.Spritesheet import *
+from core.Bomb import *
 
 
 
-class Hero:
+class Hero(AnimatedSprite):
+  HANDLED_EVENTS = [
+    TICK_CLOCK,
+    pygame.KEYDOWN,
+    pygame.KEYUP
+  ]
+
+  ASSETS_ROOT = f'{SPRITES_ROOT}/hero'
+  SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
+  JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
   #TODO
-  def __init__(self, screen, x=0, y=0, size=(32, 32)):
-    self.assets_root = 'assets/sprites/hero'
-    self.sprite_json_path = f'{self.assets_root}/spritesheet_meta.json'
-    self.spritesheet_path = f'{self.assets_root}/spritesheet.png'
-    self.spritesheet = Spritesheet(
-      self.sprite_json_path, self.spritesheet_path, 'Hero')
-    self.default_speed_value = 8
+  def __init__(self, starting_position=(0,0), size=(32, 32)):
+    AnimatedSprite.__init__(self, Hero.JSON_PATH, Hero.SPRITESHEET_PATH, 'Hero', starting_position, size)
+    self.set_defaults()
 
-    self.screen = screen
-    self.size = size
-    self.x = x
-    self.y = y
+  def set_defaults(self):
+    self.default_speed_value = 16
     self.horizontal_speed = 0
     self.vertical_speed = 0
-    self.movement_keys = [0, 0, 0, 0]
-    self.flip_blit = False
-    self.surface = self.transform_blit()
+    self.movement_keys = {
+      pygame.K_LEFT: 0,
+      pygame.K_UP: 0,
+      pygame.K_RIGHT: 0,
+      pygame.K_DOWN: 0
+    }
+    self.placed_bombs = RenderPlain()
+    self.max_bombs = 1
+    self.current_bomb_type = Bomb.TYPES['STRONG']
 
-  def transform_blit(self):
-    temp = pygame.image.fromstring(
-      self.spritesheet.current_image.tobytes(), self.spritesheet.current_rect, 'RGBA')
-    temp = pygame.transform.flip(temp, self.flip_blit, False)
-    surface = pygame.transform.scale(temp, self.size)
-    return surface
-
-  def change_animation(self, animation_name):
-    self.spritesheet.set_current_animation(animation_name)
-    return self.transform_blit()
-
-  def loop(self, grid):
+  def update(self, group):
+    self.remove_exploded_bombs()
     self.spritesheet.loop()
 
-    old_x = self.x
-    old_y = self.y
+    old_x = self.rect.x
+    old_y = self.rect.y
 
-    self.x += self.horizontal_speed
-    self.y += self.vertical_speed
+    self.rect.x += self.horizontal_speed
+    self.rect.y += self.vertical_speed
+    if len(spritecollide(self, group, dokill=False)) > 0:
+       self.rect.x = old_x
+       self.rect.y = old_y
 
-    if self.check_collision(grid):
-      self.x = old_x
-      self.y = old_y
+    self.image = self.transform_image()
+    self.placed_bombs.update()
 
-    self.surface = self.transform_blit()
+  def on_key_down(self, keycode, grid):
+    if keycode in self.movement_keys:
+      self.handle_movement(keycode, 1)
+    elif(keycode == pygame.K_SPACE):
+      self.handle_drop_bomb(grid)
 
-  def render(self):
-      self.screen.blit(self.surface, (self.x, self.y))
-
-  def onKeyDown(self, keycode):
-    if(keycode == pygame.K_LEFT):
-      self.horizontal_speed = -self.default_speed_value
-      self.movement_keys[0] = 1
-      self.flip_blit = True
-    elif(keycode == pygame.K_UP):
-      self.vertical_speed = -self.default_speed_value
-      self.movement_keys[1] = 1
-    elif(keycode == pygame.K_RIGHT):
-      self.horizontal_speed = self.default_speed_value
-      self.movement_keys[2] = 1
-      self.flip_blit = False
-    elif(keycode == pygame.K_DOWN):
-      self.vertical_speed = self.default_speed_value
-      self.movement_keys[3] = 1
     if(self.is_moving()):
       self.change_animation('run')
 
-  def onKeyUp(self, keycode):
-    if(keycode == pygame.K_LEFT):
+  def handle_movement(self, keycode, moving):
+    self.movement_keys[keycode] = moving
+    if(self.movement_keys[pygame.K_LEFT]):
+      self.horizontal_speed = -self.default_speed_value
+      self.flip_blit = True
+    elif(self.movement_keys[pygame.K_RIGHT]):
+      self.horizontal_speed = self.default_speed_value
+      self.flip_blit = False
+    else:
       self.horizontal_speed = 0
-      self.movement_keys[0] = 0
-    elif(keycode == pygame.K_UP):
+
+    if(self.movement_keys[pygame.K_UP]):
+      self.vertical_speed = -self.default_speed_value
+    elif(self.movement_keys[pygame.K_DOWN]):
+      self.vertical_speed = self.default_speed_value
+    else:
       self.vertical_speed = 0
-      self.movement_keys[1] = 0
-    elif(keycode == pygame.K_RIGHT):
-      self.horizontal_speed = 0
-      self.movement_keys[2] = 0
-    elif(keycode == pygame.K_DOWN):
-      self.vertical_speed = 0
-      self.movement_keys[3] = 0
-    elif(keycode == pygame.K_ESCAPE):
-      pygame.quit()
+    return
+
+  def handle_drop_bomb(self, grid):
+    if(len(self.placed_bombs) < self.max_bombs):
+      #bomb_position e bomb_coord serve para não spawnar bombas no meio de um tile
+      bomb_position = grid.get_position_from_coord((self.rect.x, self.rect.y))
+      bomb_coord = grid.get_coord_from_position(bomb_position)
+      self.placed_bombs.add(Bomb(self.current_bomb_type, bomb_coord, self.size))
+    return
+
+  def on_key_up(self, keycode, grid):
+    if keycode in self.movement_keys:
+      self.handle_movement(keycode, 0)
 
     if(not self.is_moving()):
       self.change_animation('idle')
 
   def is_moving(self):
-    return self.movement_keys[0] or self.movement_keys[1] or self.movement_keys[2] or self.movement_keys[3]
+    return any([True for key, value in self.movement_keys.items() if value == 1])
 
   def get_rect(self):
-    return self.surface.get_rect(left=self.x, top=self.y)
+    return self.image.get_rect(left=self.rect.x, top=self.rect.y)
 
-  def check_collision(self, grid: Grid):
+  #TODO verificar colisão apenas de blocos próximos do player
+  def check_collision(self, grid):
     collision_list = self.get_rect().collidelist(grid.collidables_rects)
     return collision_list >= 0
+
+  def draw_bombs(self, screen):
+    self.placed_bombs.draw(screen)
+
+  def tick_bombs(self):
+    for bomb in self.placed_bombs:
+      bomb.tick()
+
+  def handle_event(self, event, grid):
+    if event.type == pygame.KEYDOWN:
+      self.on_key_down(event.key, grid)
+      return
+    if event.type == pygame.KEYUP:
+      self.on_key_up(event.key, grid)
+      return
+    if event.type == TICK_CLOCK and len(self.placed_bombs.sprites()) > 0:
+      self.tick_bombs()
+
+  def remove_exploded_bombs(self):
+    for bomb in self.placed_bombs:
+      if(bomb.status == Bomb.STATUS['EXPLODED']):
+        self.placed_bombs.remove(bomb)
