@@ -1,6 +1,8 @@
 import pygame
 from pygame.sprite import Sprite, spritecollide, RenderPlain
-from core.Events import TICK_CLOCK
+from pygame.time import set_timer
+from pygame import event
+from core.Events import TICK_CLOCK, INVULNERABILITY_OVER, MOVEMENT_LOCK_OVER
 from core.Grid import *
 from core.AnimatedSprite import *
 from core.Spritesheet import *
@@ -11,6 +13,8 @@ from core.Bomb import *
 class Hero(AnimatedSprite):
   HANDLED_EVENTS = [
     TICK_CLOCK,
+    MOVEMENT_LOCK_OVER,
+    INVULNERABILITY_OVER,
     pygame.KEYDOWN,
     pygame.KEYUP
   ]
@@ -18,6 +22,8 @@ class Hero(AnimatedSprite):
   ASSETS_ROOT = f'{SPRITES_ROOT}/hero'
   SPRITESHEET_PATH = f'{ASSETS_ROOT}/spritesheet.png'
   JSON_PATH = f'{ASSETS_ROOT}/spritesheet_meta.json'
+  DEFAULT_INVULNERABILITY_TIME = 2000
+  DEFAULT_MOVEMENT_LOCK_TIME = 1000
   #TODO
   def __init__(self, starting_position=(0,0), size=(32, 32)):
     AnimatedSprite.__init__(self, Hero.JSON_PATH, Hero.SPRITESHEET_PATH, 'Hero', starting_position, size)
@@ -35,7 +41,11 @@ class Hero(AnimatedSprite):
     }
     self.placed_bombs = RenderPlain()
     self.max_bombs = 1
-    self.current_bomb_type = Bomb.TYPES['STRONG']
+    self.current_bomb_type = Bomb.TYPES['WEAK']
+    self.invunerable = False
+    self.invunerable_frame_index = 0
+    self.can_move = True
+    self.hp = 5
 
   def update(self, group):
     self.remove_exploded_bombs()
@@ -43,14 +53,19 @@ class Hero(AnimatedSprite):
 
     old_x = self.rect.x
     old_y = self.rect.y
-
+  
     self.rect.x += self.horizontal_speed
     self.rect.y += self.vertical_speed
-    if len(spritecollide(self, group, dokill=False)) > 0:
+    if len(spritecollide(self, group, dokill=False)) > 0 or not self.can_move:
        self.rect.x = old_x
        self.rect.y = old_y
 
     self.image = self.transform_image()
+    if(self.invunerable):
+      #imagem pisca se estiver invulneravel
+      self.opacity = 0 if self.invunerable_frame_index > 1 else 255
+      self.invunerable_frame_index = (self.invunerable_frame_index + 1)%4
+      self.image.set_alpha(self.opacity)
     self.placed_bombs.update()
 
   def on_key_down(self, keycode, grid):
@@ -123,6 +138,26 @@ class Hero(AnimatedSprite):
       return
     if event.type == TICK_CLOCK and len(self.placed_bombs.sprites()) > 0:
       self.tick_bombs()
+      return
+    if event.type == MOVEMENT_LOCK_OVER:
+      if event.id == id(self):
+        self.can_move = True
+      return
+    if event.type == INVULNERABILITY_OVER:
+      if event.id == id(self):
+        self.invunerable = False
+        self.opacity = 255
+      return
+
+  def handle_damage(self):
+    if(self.invunerable):
+      return
+    self.hp -= 1
+    self.invunerable = True
+    self.can_move = False
+    set_timer(event.Event(INVULNERABILITY_OVER, {'id': id(self)}), Hero.DEFAULT_INVULNERABILITY_TIME, 1)
+    set_timer(event.Event(MOVEMENT_LOCK_OVER, {'id': id(self)}), Hero.DEFAULT_MOVEMENT_LOCK_TIME, 1)
+
 
   def remove_exploded_bombs(self):
     for bomb in self.placed_bombs:

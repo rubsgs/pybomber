@@ -14,6 +14,7 @@ class AnimatedSprite(Sprite):
     self.rect = self.image.get_rect(left=0, top=0)
     self.rect.x = starting_position[0]
     self.rect.y = starting_position[1]
+    self.opacity = 255
 
   def transform_image(self):
     current_image = self.spritesheet.current_image.tobytes()

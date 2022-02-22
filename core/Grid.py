@@ -1,7 +1,7 @@
 from cmath import inf
 from turtle import position
 import pygame
-from pygame.sprite import RenderPlain, RenderUpdates
+from pygame.sprite import RenderPlain, RenderUpdates, spritecollide
 import random
 from core.Explosion import Explosion
 from core.Rock import * 
@@ -111,4 +111,7 @@ class Grid:
     for rock in collided_rocks:
       if rock.handle_damage(event.damage):
         self.element_matrix[rock.grid_x][rock.grid_y] = -1
+    hero_exploded = spritecollide(self.hero.sprites()[0], self.explosions, False)
+    if len(hero_exploded) > 0:
+      self.hero.sprites()[0].handle_damage()
     
