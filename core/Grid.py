@@ -1,5 +1,3 @@
-from cmath import inf
-from turtle import position
 import pygame
 from pygame.sprite import RenderPlain, RenderUpdates, spritecollide
 import random
