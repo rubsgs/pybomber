@@ -1,5 +1,5 @@
 import pygame
-from pygame.sprite import RenderPlain, RenderUpdates
+from pygame.sprite import RenderPlain, RenderUpdates, spritecollide
 import random
 from core.Explosion import Explosion
 from core.Rock import * 
@@ -41,10 +41,10 @@ class Grid:
       for (x, y, gid) in layer.iter_data():
         if(x >= len(self.element_matrix)): self.element_matrix.append([])
         if self.map.data.get_tile_properties_by_gid(gid):
-          self.element_matrix[x].append(Collidable.MAP)
           img = self.map.data.get_tile_image_by_gid(gid)
           collidable = Collidable(img, Collidable.MAP, (x,y))
           self.collidables.add(collidable)
+          self.element_matrix[x].append(collidable)
         else:
           self.element_matrix[x].append(-1)
 
@@ -102,4 +102,14 @@ class Grid:
     return
 
   def handle_explode_bomb(self, event):
-    self.explosions.add(Explosion.make_explosions_from_event(event, self))
+    if 'damage' not in event.__dict__:
+      raise Exception('Invalid bomb used')
+    explosions, collided_rocks = Explosion.make_explosions_from_event(event, self)
+    self.explosions.add(explosions)
+    for rock in collided_rocks:
+      if rock.handle_damage(event.damage):
+        self.element_matrix[rock.grid_x][rock.grid_y] = -1
+    hero_exploded = spritecollide(self.hero.sprites()[0], self.explosions, False)
+    if len(hero_exploded) > 0:
+      self.hero.sprites()[0].handle_damage()
+    

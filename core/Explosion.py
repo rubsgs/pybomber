@@ -29,10 +29,12 @@ class Explosion(AnimatedSprite):
     grid_x_negative_range = range(position_center[0], position_center[0]-event.range - 1, -1)
     grid_y_positive_range = range(position_center[1], position_center[1]+event.range + 1)
     grid_y_negative_range = range(position_center[1], position_center[1]-event.range - 1, -1)
+    collided_rocks = []
     for x in grid_x_positive_range:
       if x < 0 or x == position_center[0] or x > grid.total_columns-1:
         continue
       if grid.element_matrix[x][position_center[1]] != -1:
+        collided_rocks.append(grid.element_matrix[x][position_center[1]])
         break
 
       explosion_position = grid.get_coord_from_position((x, position_center[1]))
@@ -42,6 +44,7 @@ class Explosion(AnimatedSprite):
       if x < 0 or x == position_center[0] or x > grid.total_columns-1:
         continue
       if grid.element_matrix[x][position_center[1]] != -1:
+        collided_rocks.append(grid.element_matrix[x][position_center[1]])
         break
 
       explosion_position = grid.get_coord_from_position((x, position_center[1]))
@@ -51,6 +54,7 @@ class Explosion(AnimatedSprite):
       if y < 0 or y == position_center[1] or y > grid.total_columns-1:
         continue
       if grid.element_matrix[position_center[0]][y] != -1:
+        collided_rocks.append(grid.element_matrix[position_center[0]][y])
         break
 
       explosion_position = grid.get_coord_from_position((position_center[0], y))
@@ -60,9 +64,10 @@ class Explosion(AnimatedSprite):
       if y < 0 or y == position_center[1] or y > grid.total_columns-1:
         continue
       if grid.element_matrix[position_center[0]][y] != -1:
+        collided_rocks.append(grid.element_matrix[position_center[0]][y])
         break
 
       explosion_position = grid.get_coord_from_position((position_center[0], y))
       returned_explosions.append(Explosion(explosion_position))
       
-    return returned_explosions
+    return returned_explosions, collided_rocks
