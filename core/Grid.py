@@ -7,8 +7,17 @@ from core.Map import *
 from core.Collidable import *
 from core.Hero import *
 from core.Events import EXPLODE_BOMB, TICK_CLOCK
+from core.Enemy import * 
+from core.MaleZombie import * 
+from core.FemaleZombie import *
 from math import floor
+from enum import Enum
 
+class GridDirection(Enum):
+  UP = 1
+  RIGHT = 2
+  DOWN = 3
+  LEFT = 4
 class Grid:
   HANDLED_EVENTS = [
     EXPLODE_BOMB
@@ -33,6 +42,7 @@ class Grid:
     starting_position = self.get_coord_from_position((1,1))
     self.hero = RenderUpdates(Hero(starting_position))
     self.explosions = RenderUpdates()
+    self.enemies =  RenderUpdates(FemaleZombie(self.get_coord_from_position((19,19))))
 
 
   def init_matrix(self):
@@ -93,12 +103,14 @@ class Grid:
 
     self.hero.update(self.collidables)
     self.explosions.update()
+    self.enemies.update()
 
   def on_render(self, screen):
     self.draw(screen)
     self.explosions.draw(screen)
     self.hero.sprites()[0].draw_bombs(screen)
     self.hero.draw(screen)
+    self.enemies.draw(screen)
     return
 
   def handle_explode_bomb(self, event):
